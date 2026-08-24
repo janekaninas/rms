@@ -35,7 +35,10 @@ alter table reservations enable row level security;
 create policy "staff can read csv_uploads" on csv_uploads
   for select using (auth.jwt() -> 'app_metadata' ->> 'role' = 'staff');
 create policy "front_office can read own csv_uploads" on csv_uploads
-  for select using (uploaded_by = auth.uid());
+  for select using (
+    auth.jwt() -> 'app_metadata' ->> 'role' = 'front_office'
+    and uploaded_by = auth.uid()
+  );
 
 create policy "staff can read reservations" on reservations
   for select using (auth.jwt() -> 'app_metadata' ->> 'role' = 'staff');

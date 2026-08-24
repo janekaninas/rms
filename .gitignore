@@ -1,0 +1,6 @@
+.DS_Store
+sample-data/
+node_modules/
+.next/
+.env
+.env.local

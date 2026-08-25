@@ -14,6 +14,9 @@ export async function uploadRoomChangeLog(fileName: string, csvText: string, upl
     .single()
   if (uploadError) throw uploadError
 
+  let reservationsUpdated = 0
+  const unmappedRoomNumbers = new Set<string>()
+
   if (changes.length > 0) {
     const { error } = await supabase.from('room_changes').insert(
       changes.map((c) => ({
@@ -35,6 +38,12 @@ export async function uploadRoomChangeLog(fileName: string, csvText: string, upl
     // via room_mappings here too -- it is NOT recomputed automatically just because
     // room_number changed. Skipping this would let property_id silently go stale, which was
     // exactly the bug Task 3.5 fixed for initial ingestion.
+    //
+    // If the new room number ISN'T in room_mappings (typo, brand-new unit, unusual internal
+    // code), the reservation likely already carries a correct property_id from initial
+    // ingestion -- don't overwrite it with null. Only room_number is updated in that case, and
+    // the unresolved room number is surfaced in the return value (mirroring
+    // upload-bookings.ts's unmappedRoomNumbers) rather than silently dropped.
     const roomNumberChanges = changes.filter((c) => c.changedField === 'room_number' && c.newValue)
     if (roomNumberChanges.length > 0) {
       const { data: mappings, error: mappingsError } = await supabase
@@ -44,24 +53,33 @@ export async function uploadRoomChangeLog(fileName: string, csvText: string, upl
       const propertyIdByRoomNumber = new Map(mappings.map((m) => [m.room_number, m.property_id]))
 
       for (const change of roomNumberChanges) {
-        const { error: reservationUpdateError } = await supabase
+        const propertyId = propertyIdByRoomNumber.get(change.newValue) ?? null
+        if (!propertyId) unmappedRoomNumbers.add(change.newValue)
+
+        const update: Record<string, unknown> = {
+          room_number: change.newValue,
+          updated_at: new Date().toISOString(),
+        }
+        // Only touch property_id when it resolves -- omitting the key (rather than setting it
+        // to null) leaves an already-correct property_id on the reservation untouched.
+        if (propertyId) update.property_id = propertyId
+
+        const { data: updated, error: reservationUpdateError } = await supabase
           .from('reservations')
-          .update({
-            room_number: change.newValue,
-            property_id: propertyIdByRoomNumber.get(change.newValue!) ?? null,
-            updated_at: new Date().toISOString(),
-          })
+          .update(update)
           .eq('reservation_number', change.reservationNumber)
+          .select('id')
         if (reservationUpdateError) throw reservationUpdateError
+        reservationsUpdated += updated?.length ?? 0
       }
     }
   }
 
   const { error: updateUploadError } = await supabase
     .from('csv_uploads')
-    .update({ rows_new: changes.length })
+    .update({ rows_new: changes.length, rows_updated: reservationsUpdated })
     .eq('id', upload.id)
   if (updateUploadError) throw updateUploadError
 
-  return { changesDetected: changes.length }
+  return { changesDetected: changes.length, unmappedRoomNumbers: [...unmappedRoomNumbers] }
 }

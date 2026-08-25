@@ -51,8 +51,14 @@ export function parseRoomChangeLog(raw: string): DetectedRoomChange[] {
   })
 
   const reservationNumberIdx = header.indexOf('Reservation Number')
+  if (reservationNumberIdx === -1) {
+    throw new Error('Unrecognized room-change log: missing column "Reservation Number"')
+  }
   const changeDateBeforeIdx = header.indexOf('Change Date')
   const changeDateAfterIdx = header.indexOf('Change Date', changeDateBeforeIdx + 1)
+  if (changeDateBeforeIdx === -1 || changeDateAfterIdx === -1) {
+    throw new Error('Unrecognized room-change log: expected two "Change Date" columns')
+  }
 
   const changes: DetectedRoomChange[] = []
 

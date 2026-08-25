@@ -61,7 +61,11 @@ export function UploadForm() {
           />
         </label>
       ))}
-      {status && <p className="text-sm text-gray-700">{status}</p>}
+      {status && (
+        <p className={`text-sm ${status.startsWith('Error:') ? 'text-red-600' : 'text-gray-700'}`}>
+          {status}
+        </p>
+      )}
     </div>
   )
 }

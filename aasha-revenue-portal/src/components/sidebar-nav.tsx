@@ -18,10 +18,10 @@ export function SidebarNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar-bg ${
               active
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'text-[var(--color-sidebar-text-muted)] hover:bg-white/5 hover:text-[var(--color-sidebar-text)]'
+                ? 'bg-accent text-white'
+                : 'text-sidebar-text-muted hover:bg-white/5 hover:text-sidebar-text'
             }`}
           >
             {item.label}

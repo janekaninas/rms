@@ -5,7 +5,7 @@
   --color-surface: #FFFFFF;
   --color-border: #E8E2D9;
   --color-text: #241F1C;
-  --color-text-muted: #8A8177;
+  --color-text-muted: #6B6259;
   --color-accent: #9A4A2E;
   --color-accent-hover: #7E3B24;
   --color-success: #2F6844;
@@ -31,7 +31,7 @@
   --color-sidebar-text: var(--color-sidebar-text);
   --color-sidebar-text-muted: var(--color-sidebar-text-muted);
   --font-sans: var(--font-ui);
-  --font-mono: var(--font-mono);
+  --font-mono: var(--font-fragment-mono), ui-monospace, monospace;
 }
 
 body {

@@ -15,10 +15,10 @@ export default async function UploadPage() {
       <div className="mx-auto max-w-3xl">
         <UploadForm />
         <section className="mt-10">
-          <h2 className="mb-2 text-sm font-medium text-[var(--color-text-muted)]">
+          <h2 className="mb-2 text-sm font-medium text-text-muted">
             Recent uploads
           </h2>
-          <ul className="divide-y divide-[var(--color-border)] rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
+          <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
             {recentUploads?.map((u, i) => (
               <li key={i} className="flex items-center justify-between px-4 py-3 text-sm">
                 <span>
@@ -26,21 +26,18 @@ export default async function UploadPage() {
                   {u.file_name ? `: ${u.file_name}` : ''}
                 </span>
                 {u.confirmed_empty ? (
-                  <span className="rounded-full bg-[var(--color-border)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-muted)]">
+                  <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-text-muted">
                     No data today
                   </span>
                 ) : (
-                  <span
-                    className="text-xs text-[var(--color-text-muted)]"
-                    style={{ fontFamily: 'var(--font-mono)' }}
-                  >
+                  <span className="font-mono text-xs text-text-muted">
                     {u.rows_new} new, {u.rows_updated} updated
                   </span>
                 )}
               </li>
             ))}
             {recentUploads?.length === 0 && (
-              <li className="px-4 py-3 text-sm text-[var(--color-text-muted)]">
+              <li className="px-4 py-3 text-sm text-text-muted">
                 No uploads yet.
               </li>
             )}

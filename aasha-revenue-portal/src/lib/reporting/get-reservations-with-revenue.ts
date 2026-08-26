@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { calculateRevenue, calculateLeadTimeDays } from '@/lib/calculations/engine'
 import type { CommissionRule } from '@/lib/calculations/commission'
 import { needsReconciliation, resolveEffectiveAmount } from './resolve-effective-amount'
+import { getCommissionRules } from './get-commission-rules'
 
 export interface ReservationRevenueInput {
   reservationNumber: string
@@ -89,7 +90,9 @@ export function computeReservationRevenue(input: ReservationRevenueInput): Reser
 }
 
 export interface ReservationFilters {
+  /** Filters on arrival_date (not booking_date). Inclusive lower bound. */
   dateFrom?: string
+  /** Filters on arrival_date (not booking_date). Inclusive upper bound. */
   dateTo?: string
   propertyId?: string
   status?: 'confirmed' | 'cancelled' | 'departed'
@@ -118,15 +121,7 @@ export async function getReservationsWithRevenue(
   if (reconciliationsError) throw reconciliationsError
   const manualAmountByReservation = new Map(reconciliations.map((r) => [r.reservation_number, r.amount]))
 
-  const { data: rules, error: rulesError } = await supabase
-    .from('commission_rules')
-    .select('source, villa_group, commission_pct')
-  if (rulesError) throw rulesError
-  const commissionRules: CommissionRule[] = rules.map((r) => ({
-    source: r.source,
-    villaGroup: r.villa_group as 'bracha' | 'default',
-    commissionPct: r.commission_pct,
-  }))
+  const commissionRules = await getCommissionRules(supabase)
 
   return reservations.map((r) => {
     const property = Array.isArray(r.properties) ? r.properties[0] : r.properties

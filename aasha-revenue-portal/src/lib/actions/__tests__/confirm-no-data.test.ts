@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildConfirmNoDataRow } from '../confirm-no-data'
+import { buildConfirmNoDataRow } from '../confirm-no-data-row'
 
 describe('buildConfirmNoDataRow', () => {
   it('builds a csv_uploads row with no file, marked confirmed_empty', () => {

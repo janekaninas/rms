@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const NAV_ITEMS = [
   { href: '/upload', label: 'Daily Upload' },
+  { href: '/reconciliation', label: 'Reconciliation' },
 ]
 
 export function SidebarNav() {

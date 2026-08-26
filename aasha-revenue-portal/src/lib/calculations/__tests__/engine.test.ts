@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { calculateRevenue, calculatePropertyArr, calculateLeadTimeDays } from '../engine'
 
+const TEST_RULES = [
+  { source: 'BOOKING.COM', villaGroup: 'bracha' as const, commissionPct: 0.18 },
+  { source: 'BOOKING.COM', villaGroup: 'default' as const, commissionPct: 0.173 },
+  { source: 'EXPEDIA.COM', villaGroup: 'bracha' as const, commissionPct: 0.15 },
+  { source: 'EXPEDIA.COM', villaGroup: 'default' as const, commissionPct: 0.15 },
+]
+
 describe('calculateRevenue', () => {
   it('applies 0% commission and full PB1 for a non-Bracha direct/TA booking', () => {
     // Confirmed fixture: Reservation 3137, Casa de Fiero 2, Make My Trip, gross 1,191,465
@@ -10,6 +17,7 @@ describe('calculateRevenue', () => {
       isBrachaGroup: false,
       pb1Enabled: true,
       nights: 1,
+      commissionRules: TEST_RULES,
     })
     expect(result.commissionPct).toBe(0)
     expect(result.commissionAmount).toBe(0)
@@ -26,6 +34,7 @@ describe('calculateRevenue', () => {
       isBrachaGroup: true,
       pb1Enabled: true,
       nights: 2,
+      commissionRules: TEST_RULES,
     })
     expect(result.commissionPct).toBe(0.18)
     expect(result.commissionAmount).toBe(360000)
@@ -42,6 +51,7 @@ describe('calculateRevenue', () => {
       isBrachaGroup: false,
       pb1Enabled: true,
       nights: 1,
+      commissionRules: TEST_RULES,
     })
     expect(result.commissionPct).toBe(0.173)
     expect(result.commissionAmount).toBe(173000)
@@ -57,6 +67,7 @@ describe('calculateRevenue', () => {
       isBrachaGroup: false,
       pb1Enabled: false,
       nights: 1,
+      commissionRules: TEST_RULES,
     })
     expect(result.pb1).toBe(0)
     expect(result.netRevenue).toBe(1000000)
@@ -69,6 +80,7 @@ describe('calculateRevenue', () => {
       isBrachaGroup: false,
       pb1Enabled: true,
       nights: 1,
+      commissionRules: TEST_RULES,
     })
     expect(result.commissionPct).toBe(0)
   })

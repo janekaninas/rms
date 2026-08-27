@@ -7,6 +7,7 @@ import { useRole } from './role-context'
 const NAV_ITEMS = [
   { href: '/upload', label: 'Daily Upload' },
   { href: '/reconciliation', label: 'Reconciliation', staffOnly: true },
+  { href: '/bookings', label: 'All Bookings', staffOnly: true },
 ]
 
 export function SidebarNav() {

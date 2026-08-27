@@ -1,4 +1,4 @@
-import { lookupCommissionPct } from './commission'
+import { lookupCommissionPct, type CommissionRule } from './commission'
 
 export interface RevenueInput {
   grossAmount: number
@@ -6,6 +6,7 @@ export interface RevenueInput {
   isBrachaGroup: boolean
   pb1Enabled: boolean
   nights: number
+  commissionRules: CommissionRule[]
 }
 
 export interface RevenueResult {
@@ -22,7 +23,7 @@ const PB1_DIVISOR = 1.1
 const PB1_RATE = 0.1
 
 export function calculateRevenue(input: RevenueInput): RevenueResult {
-  const commissionPct = lookupCommissionPct(input.source, input.isBrachaGroup)
+  const commissionPct = lookupCommissionPct(input.commissionRules, input.source, input.isBrachaGroup)
   const commissionAmount = round2(input.grossAmount * commissionPct)
   const vat = commissionAmount > 0 ? round2(commissionAmount * VAT_RATE) : 0
 

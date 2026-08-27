@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { submitReconciliation } from '@/lib/actions/submit-reconciliation'
-import { validateReconciliationAmount } from '@/lib/reconciliation/validate-amount'
+import { validateReconciliationAmount } from '@/lib/actions/validate-amount'
 
 export function ReconciliationForm({
   reservationNumber,

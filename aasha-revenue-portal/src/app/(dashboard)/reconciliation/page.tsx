@@ -1,24 +1,20 @@
-import { redirect } from 'next/navigation'
-import { createServerSupabaseClient, getRole } from '@/lib/supabase/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { requireStaffPage } from '@/lib/supabase/require-staff'
 import { getReservationsWithRevenue } from '@/lib/reporting/get-reservations-with-revenue'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { ReconciliationForm } from './reconciliation-form'
 
 export default async function ReconciliationPage() {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  const role = getRole(user)
-  if (role !== 'staff') {
-    redirect('/upload')
-  }
+  // Real access control -- redirects non-staff before any data is fetched. Separate from (and
+  // not redundant with) the sidebar's role context, which only controls nav visibility.
+  await requireStaffPage()
 
+  const supabase = await createServerSupabaseClient()
   const reservations = await getReservationsWithRevenue(supabase, { status: 'confirmed' })
   const pending = reservations.filter((r) => r.needsReconciliation)
 
   return (
-    <DashboardShell title="Reconciliation Queue" role={role}>
+    <DashboardShell title="Reconciliation Queue">
       <div className="mx-auto max-w-3xl">
         <p className="mb-4 text-sm text-text-muted">
           {pending.length} direct/travel-agent booking{pending.length === 1 ? '' : 's'} awaiting a confirmed amount.

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { AuthUser } from '@supabase/supabase-js'
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies()
@@ -21,9 +22,7 @@ export async function createServerSupabaseClient() {
 
 export type UserRole = 'staff' | 'front_office'
 
-export function getRole(
-  user: { app_metadata?: { role?: string; [key: string]: unknown } } | null
-): UserRole | null {
+export function getRole(user: Pick<AuthUser, 'app_metadata'> | null): UserRole | null {
   const role = user?.app_metadata?.role
   return role === 'staff' || role === 'front_office' ? role : null
 }

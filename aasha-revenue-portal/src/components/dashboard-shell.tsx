@@ -1,15 +1,12 @@
 import { SidebarNav } from './sidebar-nav'
-import type { UserRole } from '@/lib/supabase/server'
 
 export function DashboardShell({
   title,
   actions,
-  role,
   children,
 }: {
   title: React.ReactNode
   actions?: React.ReactNode
-  role?: UserRole | null
   children: React.ReactNode
 }) {
   return (
@@ -19,7 +16,7 @@ export function DashboardShell({
           <span className="inline-block h-2 w-2 rounded-full bg-accent" />
           <p className="text-sm font-semibold tracking-wide">Aasha Revenue Portal</p>
         </div>
-        <SidebarNav role={role} />
+        <SidebarNav />
       </aside>
       <div className="flex-1">
         <header className="flex items-center justify-between gap-4 border-b border-border bg-surface px-8 py-5">

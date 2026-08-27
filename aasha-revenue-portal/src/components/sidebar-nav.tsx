@@ -2,15 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { UserRole } from '@/lib/supabase/server'
+import { useRole } from './role-context'
 
 const NAV_ITEMS = [
   { href: '/upload', label: 'Daily Upload' },
   { href: '/reconciliation', label: 'Reconciliation', staffOnly: true },
 ]
 
-export function SidebarNav({ role }: { role?: UserRole | null }) {
+export function SidebarNav() {
   const pathname = usePathname()
+  const role = useRole()
   const items = NAV_ITEMS.filter((item) => !item.staffOnly || role === 'staff')
 
   return (

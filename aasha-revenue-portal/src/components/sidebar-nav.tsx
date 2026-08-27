@@ -2,18 +2,20 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import type { UserRole } from '@/lib/supabase/server'
 
 const NAV_ITEMS = [
   { href: '/upload', label: 'Daily Upload' },
-  { href: '/reconciliation', label: 'Reconciliation' },
+  { href: '/reconciliation', label: 'Reconciliation', staffOnly: true },
 ]
 
-export function SidebarNav() {
+export function SidebarNav({ role }: { role?: UserRole | null }) {
   const pathname = usePathname()
+  const items = NAV_ITEMS.filter((item) => !item.staffOnly || role === 'staff')
 
   return (
     <nav className="flex flex-col gap-1 p-3">
-      {NAV_ITEMS.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href
         return (
           <Link

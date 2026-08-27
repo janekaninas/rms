@@ -21,7 +21,9 @@ export async function createServerSupabaseClient() {
 
 export type UserRole = 'staff' | 'front_office'
 
-export function getRole(user: { app_metadata?: { role?: string } } | null): UserRole | null {
+export function getRole(
+  user: { app_metadata?: { role?: string; [key: string]: unknown } } | null
+): UserRole | null {
   const role = user?.app_metadata?.role
   return role === 'staff' || role === 'front_office' ? role : null
 }

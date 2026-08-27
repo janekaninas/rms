@@ -1,9 +1,13 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, getRole } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { UploadForm } from './upload-form'
 
 export default async function UploadPage() {
   const supabase = await createServerSupabaseClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const role = getRole(user)
   const { data: recentUploads } = await supabase
     .from('csv_uploads')
     .select('upload_type, file_name, uploaded_at, rows_processed, rows_new, rows_updated, confirmed_empty')
@@ -11,7 +15,7 @@ export default async function UploadPage() {
     .limit(10)
 
   return (
-    <DashboardShell title="Daily Upload">
+    <DashboardShell title="Daily Upload" role={role}>
       <div className="mx-auto max-w-3xl">
         <UploadForm />
         <section className="mt-10">

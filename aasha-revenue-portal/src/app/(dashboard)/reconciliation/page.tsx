@@ -1,15 +1,24 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { createServerSupabaseClient, getRole } from '@/lib/supabase/server'
 import { getReservationsWithRevenue } from '@/lib/reporting/get-reservations-with-revenue'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { ReconciliationForm } from './reconciliation-form'
 
 export default async function ReconciliationPage() {
   const supabase = await createServerSupabaseClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const role = getRole(user)
+  if (role !== 'staff') {
+    redirect('/upload')
+  }
+
   const reservations = await getReservationsWithRevenue(supabase, { status: 'confirmed' })
   const pending = reservations.filter((r) => r.needsReconciliation)
 
   return (
-    <DashboardShell title="Reconciliation Queue">
+    <DashboardShell title="Reconciliation Queue" role={role}>
       <div className="mx-auto max-w-3xl">
         <p className="mb-4 text-sm text-text-muted">
           {pending.length} direct/travel-agent booking{pending.length === 1 ? '' : 's'} awaiting a confirmed amount.
@@ -23,7 +32,7 @@ export default async function ReconciliationPage() {
               </div>
               <ReconciliationForm
                 reservationNumber={r.reservationNumber}
-                currentAmount={r.rawGrossAmount}
+                rawGrossAmount={r.rawGrossAmount}
               />
             </li>
           ))}

@@ -1,5 +1,19 @@
 import { redirect } from 'next/navigation'
-import { createServerSupabaseClient, getRole } from './server'
+import { getSessionUser, getRole } from './server'
+
+/**
+ * Shared identity check for the staff-only guards below. Not exported -- requireStaffAction and
+ * requireStaffPage each own their own failure behavior (throw vs redirect), but both derive the
+ * same role decision the same way, so that logic lives in exactly one place.
+ */
+async function resolveStaffUser(): Promise<{ userId: string } | null> {
+  const user = await getSessionUser()
+  const role = getRole(user)
+  if (!user || role !== 'staff') {
+    return null
+  }
+  return { userId: user.id }
+}
 
 /**
  * Server-side authorization guard for Server Actions that must be staff-only. Derives identity
@@ -8,15 +22,11 @@ import { createServerSupabaseClient, getRole } from './server'
  * existing error handling surfaces it.
  */
 export async function requireStaffAction(): Promise<{ userId: string }> {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  const role = getRole(user)
-  if (!user || role !== 'staff') {
+  const staff = await resolveStaffUser()
+  if (!staff) {
     throw new Error('Forbidden: staff access required')
   }
-  return { userId: user.id }
+  return staff
 }
 
 /**
@@ -26,13 +36,11 @@ export async function requireStaffAction(): Promise<{ userId: string }> {
  * any data fetch happens.
  */
 export async function requireStaffPage(): Promise<{ userId: string }> {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  const role = getRole(user)
-  if (!user || role !== 'staff') {
+  const staff = await resolveStaffUser()
+  if (!staff) {
+    // Signals navigation by throwing a digest-tagged error ("NEXT_REDIRECT;...") rather than
+    // returning. If this breaks on a future Next upgrade, check redirect()'s digest format.
     redirect('/upload')
   }
-  return { userId: user.id }
+  return staff
 }
